@@ -1,0 +1,44 @@
+.flag, .c_map .row .o_cell:before, .c_map .row .x_cell:before {
+  display: block;
+  line-height: 30px;
+  width: 30px;
+  text-align: center;
+}
+
+.c_map {
+  width: fit-content;
+  height: fit-content;
+  overflow: auto;
+  background-color: gray;
+}
+
+.c_map .row {
+  margin: 0;
+  padding: 0;
+  display: block;
+  width: max-content;
+  height: 30px;
+}
+
+.c_map .row .cell {
+  background-color: white;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+  margin: 0;
+  border: 1px solid #aaaaaa;
+  overflow: hidden;
+}
+
+.c_map .row .x_cell:before {
+  content: '\26CC';
+  font-size: 2rem;
+  color: blue;
+  transform: translateY(-2px);
+}
+
+.c_map .row .o_cell:before {
+  content: '\2B55';
+  color: blue;
+}

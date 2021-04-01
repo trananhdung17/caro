@@ -1,0 +1,50 @@
+
+$mapsize: fit-content;
+$cell: 30px;
+
+.flag {
+    display: block;
+    line-height: $cell;
+    width: $cell;
+    text-align: center;
+}
+
+.c_map {
+    width: $mapsize;
+    height: $mapsize;
+    overflow: auto;
+    background-color: gray;
+    .row {
+        margin: 0;
+        padding: 0;
+        display: block;
+        width: max-content;
+        height: $cell;
+        .cell {
+            background-color: white;
+            padding: 0;
+            width: $cell;
+            height: $cell;
+            display: inline-block;
+            margin: 0;
+            border: 1px solid #aaaaaa;
+            overflow: hidden;
+        }
+        .x_cell {
+            &:before {
+                @extend .flag;
+                content: '\26CC';
+                font-size: 2rem;
+                color: blue;
+                transform: translateY(-2px);
+            }
+        }
+        .o_cell {
+            &:before {
+                @extend .flag;
+                content: '\2B55';
+                color: blue;
+            }
+        }
+    }
+}
