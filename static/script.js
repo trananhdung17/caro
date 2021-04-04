@@ -1,20 +1,5 @@
 $(document).ready(() => {
-    $('#action_new').click(event => {
-        var data = {
-            game_level: $('#game_level')[0].value,
-            player_name: $('#player_name')[0].value
-        }
-        $.ajax({
-            type: "POST",
-            url: '/',
-            data: data,
-            success: (resp) => {
-                console.log(resp)
-            },
-            dataType: 'json',
-            contentType: 'application/json;charset=UTF-8',
-        });
-    })
+
     var push = (i, j, symbol) => {
         $(`span[data_i="${i}"][data_j="${j}"]`).addClass(symbol + '_cell')
     }
@@ -40,6 +25,7 @@ $(document).ready(() => {
 
     var load = () => {
         var $map = $('.c_map');
+        $map.empty();
         for (var i = -10; i <= 10; i++) {
             var $row = $('<div class="row"></div>');
             for (var j = -10; j <= 10; j++) {
@@ -57,5 +43,25 @@ $(document).ready(() => {
             $map.append($row)
         }
     }
+
+    $('#action_new').click(event => {
+        var data = {
+            game_level: $('#game_level')[0].value,
+            player_name: $('#player_name')[0].value
+        }
+        $.ajax({
+            type: "POST",
+            url: '/',
+            data: data,
+            success: (resp) => {
+                if (resp.success) {
+                    load();
+                }
+            },
+            dataType: 'json',
+            contentType: 'application/json;charset=UTF-8',
+        });
+    })
+    
     load();
 })

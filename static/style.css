@@ -1,8 +1,54 @@
+@import url("https://fonts.googleapis.com/css2?family=Lato:wght@300;400&display=swap");
 .flag, .c_map .row .o_cell:before, .c_map .row .x_cell:before {
   display: block;
   line-height: 30px;
   width: 30px;
   text-align: center;
+}
+
+.main {
+  font-family: 'Lato';
+  margin: auto;
+  width: fit-content;
+  height: fit-content;
+}
+
+.c_panel form div {
+  padding: 0px;
+  width: 300px;
+}
+
+.c_panel form div label {
+  width: 30%;
+}
+
+.c_panel form div input, .c_panel form div select {
+  margin: 8px 0;
+  padding: 8px;
+  display: block;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.c_panel form div select {
+  width: 100%;
+  display: block;
+}
+
+.c_panel form button {
+  background-color: darkcyan;
+  /* Green */
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  border-radius: 3px;
+  margin: 15px 0;
 }
 
 .c_map {
@@ -29,6 +75,7 @@
   margin: 0;
   border: 1px solid #aaaaaa;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .c_map .row .x_cell:before {

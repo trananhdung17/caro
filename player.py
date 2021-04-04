@@ -33,9 +33,16 @@ class BasePlayer(object):
         if not self.turn:
             return False
         point = self._get_point()
-        if self._push(point) == 'fail' and self.is_bot:
-            self.play()
-        return point
+        state = self._push(point)
+        if state == 'fail':
+            if self.is_bot:
+                self.play()
+            else:
+                return 'fail'
+        elif state == 'pass':
+            return point
+        else:
+            return state
 
     def set_map(self, map):
         self.map = map

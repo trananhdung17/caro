@@ -10,32 +10,32 @@
     <script src="libs/jquery-3.6.0.min.js"></script>
     <script src="script.js"></script>
 </header>
-<div class="c_panel">
-    <form action="/" method="post" id="panel">
-        <div>
-            <label>Name: </label>
-            <input type="text" name="player_name" id="player_name"/>
-        </div>
-        <div>
-            <label>Level: </label>
-            <select name="game_level" id="game_level">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-            </select>
-        </div>
-
-        <button type="button" id="action_new">New</button>
-
-    </form>
-
+<div class="main">
+    <div class="c_panel">
+        <form action="/" method="post" id="panel">
+            <div>
+                <label>Name: </label>
+                <input type="text" name="player_name" id="player_name"/>
+            </div>
+            <div>
+                <label>Level: </label>
+                <select name="game_level" id="game_level">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </div>
+    
+            <button type="button" id="action_new">New</button>
+    
+        </form>
+    
+    </div>
+    
+    <div class="c_map"></div>
 </div>
-<div class="c_map">
-<!--    <span>I: </span><input type="number" id="i"/>-->
-<!--    <span>J: </span><input type="number" id="j"/>-->
-<!--    <button type="button" id="action_push">Push]</button>-->
-</div>
+
 
 </body>
 </html>

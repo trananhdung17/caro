@@ -101,8 +101,11 @@ class Bot(Player):
 
         _value_points = [(self._estimate(_map, p, self.symbol) + self._estimate(_map, p, -self.symbol), p) for p in available_points]
         _value_points.sort(key=lambda x: x[0], reverse=True)
-        for v, p in _value_points[:8]:
-            points.append((self._min(_map, available_points, p,  self.symbol, 0)[0], p))
+        for v, p in _value_points[:12]:
+            value = self._min(_map, available_points, p,  self.symbol, 0)[0]
+            # if abs(value) >= INFINITY:
+            #     return p
+            points.append((value, p))
 
         points.sort(key=lambda x: x[0])
         value, point = points[-1]
@@ -135,8 +138,14 @@ class Bot(Player):
         self._update_available_points(_map, _available_points, point)
 
         points = []
-        for v, p in _value_points[:8]:
-            points.append((self._min(_map, _available_points, p, -symbol, level + 1)[0], p))
+        for v, p in _value_points[:12]:
+
+            value = self._min(_map, _available_points, p, -symbol, level + 1)[0]
+            # if abs(value) >= INFINITY:
+            #     return value, p
+
+            points.append((value, p))
+            # points.append((self._min(_map, _available_points, p, -symbol, level + 1)[0], p))
 
         points.sort(key=lambda x: x[0])
         return points[-1]
@@ -164,8 +173,13 @@ class Bot(Player):
         _value_points.sort(key=lambda x: x[0], reverse=True)
 
         points = []
-        for v, p in _value_points[:8]:
-            points.append((self._max(_map, _available_points, p, -symbol, level + 1)[0], p))
+        for v, p in _value_points[:12]:
+
+            value = self._min(_map, _available_points, p, -symbol, level + 1)[0]
+            # if abs(value) >= INFINITY:
+            #     return value, p
+            points.append((value, p))
+            # points.append((self._max(_map, _available_points, p, -symbol, level + 1)[0], p))
 
         points.sort(key=lambda x: x[0])
         return points[0]
