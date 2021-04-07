@@ -89,3 +89,7 @@
   content: '\2B55';
   color: blue;
 }
+
+.c_map .row .active {
+  background-color: yellow !important;
+}

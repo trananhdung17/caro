@@ -93,5 +93,8 @@ $cell: 30px;
                 color: blue;
             }
         }
-    }
+        .active {
+            background-color: yellow !important;
+        } 
+    }   
 }

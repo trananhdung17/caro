@@ -18,37 +18,40 @@ class Bot(Player):
         'ooooo': 'win',
         '-oooo-': 'o_for',
         'xoooo-': 'four',
+        'oo-oo': 'four',
+        'ooo-o': 'four',
+        'o-ooo': 'four',
         '-oooox': 'four',
         '-ooo--': 'o_three',
+        '-o-oo-': 'o_three',
+        '-oo-o-': 'o_three',
         '--ooo-': 'o_three',
         'xooo--': 'three',
+        'xo-oo-': 'three',
+        'xoo-o-': 'three',
         '--ooox': 'three',
+        '-o-oox': 'three',
+        '-oo-ox': 'three',
         '-oo-': 'o_two',
+        '-o-o-': 'o_two',
         '-oox': 'two',
         'xoo-': 'two',
-        '-o-': 'o_one',
-        'xo-': 'one',
-        '-ox': 'one'
     }
     _quantification = {
         'win': INFINITY,
         'cross_win': INFINITY,
         'o_for': 5000000,
         'cross_o_for': 5000000,
-        'four': 200000,
-        'cross_four': 230000,
+        'four': 300000,
+        'cross_four': 330000,
         'o_three': 260000,
         'cross_o_three': 280000,
         'three': 20000,
-        'cross_three': 25000,
+        'cross_three': 45000,
         'o_two': 400,
-        'cross_o_two': 550,
+        'cross_o_two': 900,
         'two': 30,
-        'cross_two': 40,
-        'o_one': 3,
-        'cross_o_one': 3,
-        'one': 1,
-        'cross_one': 2
+        'cross_two': 80,
     }
 
     def __init__(self, name, symbol, map, level=1):
@@ -64,53 +67,64 @@ class Bot(Player):
         i, j = point
         v = h = d = u = ''
         symbol = symbol or self.symbol
+        map[point] = symbol
         n = -4
         while n <= 4:
-            v += n == 0 and self._symbols[self.symbol] or self._symbols[symbol * map.get((i + n, j), 0)]
-            h += n == 0 and self._symbols[self.symbol] or self._symbols[symbol * map.get((i, j + n), 0)]
-            d += n == 0 and self._symbols[self.symbol] or self._symbols[symbol * map.get((i + n, j + n), 0)]
-            u += n == 0 and self._symbols[self.symbol] or self._symbols[symbol * map.get((i - n, j + n), 0)]
+            v += self._symbols[symbol * map.get((i + n, j), 0)]
+            h += self._symbols[symbol * map.get((i, j + n), 0)]
+            d += self._symbols[symbol * map.get((i + n, j + n), 0)]
+            u += self._symbols[symbol * map.get((i - n, j + n), 0)]
             n += 1
+        del map[point]
         return v, h, d, u
 
     def _estimate(self, map, point, symbol=None):
         """
 
-        :param point: tuple or list of 2 int (int, int)
-        :return:
+        :param map: dict
+        :param point: (int, int)
+        :param symbol: 1 or -1
+        :return: int
         """
         v, h, d, u = self._get_lines(map, point, symbol)
-        # print(v, h, d, u)
-        lines = []
+        value = 0
         for state in self._states:
             if state in v:
-                lines.append(self._states[state])
+                value += self._quantification[self._states[state]]
             if state in h:
-                lines.append(self._states[state])
+                value += self._quantification[self._states[state]]
             if state in d:
-                lines.append('cross_' + self._states[state])
+                value += self._quantification['cross_' + self._states[state]]
             if state in u:
-                lines.append('cross_' + self._states[state])
-        value = sum([self._quantification[line] for line in lines])
+                value += self._quantification['cross_' + self._states[state]]
         return value
 
     def _get_point(self):
-        points = []
+
         _map = self.map.copy()
         available_points = self._get_available_points()
 
+        if len(available_points) == 1:
+            return available_points[0]
+
         _value_points = [(self._estimate(_map, p, self.symbol) + self._estimate(_map, p, -self.symbol), p) for p in available_points]
         _value_points.sort(key=lambda x: x[0], reverse=True)
-        for v, p in _value_points[:12]:
-            value = self._min(_map, available_points, p,  self.symbol, 0)[0]
-            # if abs(value) >= INFINITY:
-            #     return p
-            points.append((value, p))
 
-        points.sort(key=lambda x: x[0])
-        value, point = points[-1]
-        print('Selected point: %s with value is %s' % (str(point), value))
-        return point
+        _max_point = None
+        _max_value = -(2 * INFINITY)
+        for v, p in _value_points[:12]:
+
+            value = self._min(_map, available_points, p,  self.symbol, 0)[0]
+
+            if value > _max_value:
+                _max_value = value
+                _max_point = p
+
+            if abs(value) >= INFINITY:
+                break
+
+        print('Selected point: %s with value is %s' % (str(_max_point), _max_value))
+        return _max_point
 
     def _max(self, map, available_points, point, symbol, level=0):
         """
@@ -123,9 +137,11 @@ class Bot(Player):
         :return:
         """
         _map = map.copy()
-        _available_points = available_points.copy()
+        _available_points = [*available_points]
         _map[point] = symbol
+
         current_value = self._estimate(_map, point, symbol)
+
         if current_value >= INFINITY:
             return -current_value, point
 
@@ -133,22 +149,26 @@ class Bot(Player):
             return -current_value, point
 
         self._update_available_points(_map, _available_points, point)
+
         _value_points = [(self._estimate(_map, p, -symbol) + self._estimate(_map, p, symbol), p) for p in _available_points]
         _value_points.sort(key=lambda x: x[0], reverse=True)
-        self._update_available_points(_map, _available_points, point)
 
-        points = []
-        for v, p in _value_points[:12]:
+        _max_point = None
+        _max_value = -(2 * INFINITY)
+
+        n = min(max(6, int((len(_map) + 8) / (level + 1))), 12)
+        for v, p in _value_points[:n]:
 
             value = self._min(_map, _available_points, p, -symbol, level + 1)[0]
-            # if abs(value) >= INFINITY:
-            #     return value, p
 
-            points.append((value, p))
-            # points.append((self._min(_map, _available_points, p, -symbol, level + 1)[0], p))
+            if value > _max_value:
+                _max_value = value
+                _max_point = p
 
-        points.sort(key=lambda x: x[0])
-        return points[-1]
+            if abs(value) >= INFINITY:
+                break
+
+        return _max_value, _max_point
 
     def _min(self, map, available_points, point, symbol, level=0):
         """
@@ -161,28 +181,37 @@ class Bot(Player):
         :return:
         """
         _map = map.copy()
-        _available_points = available_points.copy()
+        _available_points = [*available_points]
         _map[point] = symbol
+
         current_value = self._estimate(_map, point, symbol)
+
         if current_value >= INFINITY:
             return current_value, point
         if level == self.max_depth:
             return current_value, point
+
         self._update_available_points(_map, _available_points, point)
+
         _value_points = [(self._estimate(_map, p, -symbol) + self._estimate(_map, p, symbol), p) for p in _available_points]
         _value_points.sort(key=lambda x: x[0], reverse=True)
 
-        points = []
-        for v, p in _value_points[:12]:
+        _min_value = 2 * INFINITY
+        _min_point = None
 
-            value = self._min(_map, _available_points, p, -symbol, level + 1)[0]
-            # if abs(value) >= INFINITY:
-            #     return value, p
-            points.append((value, p))
-            # points.append((self._max(_map, _available_points, p, -symbol, level + 1)[0], p))
+        n = min(max(6, int((len(_map) + 8) / (level + 1))), 12)
+        for v, p in _value_points[:n]:
 
-        points.sort(key=lambda x: x[0])
-        return points[0]
+            value = self._max(_map, _available_points, p, -symbol, level + 1)[0]
+
+            if value < _min_value:
+                _min_value = value
+                _min_point = p
+
+            if abs(value) >= INFINITY:
+                break
+
+        return _min_value, _min_point
 
     def _update_available_points(self, map, available_points, point):
         """

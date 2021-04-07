@@ -36,8 +36,8 @@ def index():  # pragma: no cover
         return Response(content, mimetype="text/html")
     else:
         data = urlparse.parse_qs(request.data.decode())
-        game_level = int(data['game_level'][0])
-        player_name = data['player_name'][0]
+        game_level = int(data.get('game_level', ['2'])[0])
+        player_name = data.get('player_name', ['Player'])[0]
         point = game.new(player_name, game_level)
         return jsonify({'success': True, 'bot': point})
 
