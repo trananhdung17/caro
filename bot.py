@@ -4,6 +4,7 @@
 from player import Player
 
 INFINITY = 999999999999
+ESTIMATION_TIMES = 0
 
 
 class Bot(Player):
@@ -86,6 +87,9 @@ class Bot(Player):
         :param symbol: 1 or -1
         :return: int
         """
+        global ESTIMATION_TIMES
+        ESTIMATION_TIMES += 1
+        print("Estimation times: %s" % ESTIMATION_TIMES)
         v, h, d, u = self._get_lines(map, point, symbol)
         value = 0
         for state in self._states:
@@ -112,7 +116,7 @@ class Bot(Player):
 
         _max_point = None
         _max_value = -(2 * INFINITY)
-        for v, p in _value_points[:12]:
+        for v, p in _value_points[:20]:
 
             value = self._min(_map, available_points, p,  self.symbol, 0)[0]
 
@@ -124,6 +128,8 @@ class Bot(Player):
                 break
 
         print('Selected point: %s with value is %s' % (str(_max_point), _max_value))
+        global ESTIMATION_TIMES
+        ESTIMATION_TIMES = 0
         return _max_point
 
     def _max(self, map, available_points, point, symbol, level=0):
@@ -145,7 +151,7 @@ class Bot(Player):
         if current_value >= INFINITY:
             return -current_value, point
 
-        if level == self.max_depth:
+        if level == min(self.max_depth, int((len(self.map.map) + 2) / 3)):
             return -current_value, point
 
         self._update_available_points(_map, _available_points, point)
@@ -156,7 +162,7 @@ class Bot(Player):
         _max_point = None
         _max_value = -(2 * INFINITY)
 
-        n = min(max(6, int((len(_map) + 8) / (level + 1))), 12)
+        n = min(max(10, int((len(_map) + 18) / (level + 1))), 20)
         for v, p in _value_points[:n]:
 
             value = self._min(_map, _available_points, p, -symbol, level + 1)[0]
@@ -188,7 +194,7 @@ class Bot(Player):
 
         if current_value >= INFINITY:
             return current_value, point
-        if level == self.max_depth:
+        if level == min(self.max_depth, int((len(self.map.map) + 1) / 2)):
             return current_value, point
 
         self._update_available_points(_map, _available_points, point)
@@ -199,7 +205,7 @@ class Bot(Player):
         _min_value = 2 * INFINITY
         _min_point = None
 
-        n = min(max(6, int((len(_map) + 8) / (level + 1))), 12)
+        n = min(max(10, int((len(_map) + 18) / (level + 1))), 20)
         for v, p in _value_points[:n]:
 
             value = self._max(_map, _available_points, p, -symbol, level + 1)[0]
