@@ -156,7 +156,7 @@ class Bot(Player):
         _max_point = None
         _max_value = -(2 * INFINITY)
 
-        n = min(max(6, int((len(_map) + 8) / (level + 1))), 12)
+        n = min(max(8, int((len(_map) + 8) / (level + 1))), 24)
         for v, p in _value_points[:n]:
 
             value = self._min(_map, _available_points, p, -symbol, level + 1)[0]
@@ -199,7 +199,7 @@ class Bot(Player):
         _min_value = 2 * INFINITY
         _min_point = None
 
-        n = min(max(6, int((len(_map) + 8) / (level + 1))), 12)
+        n = min(max(8, int((len(_map) + 8) / (level + 1))), 24)
         for v, p in _value_points[:n]:
 
             value = self._max(_map, _available_points, p, -symbol, level + 1)[0]
@@ -219,7 +219,6 @@ class Bot(Player):
         :param point:
         :return:
         """
-        # print('Update available point: %s' % str(point))
         i, j = point
         if point in available_points:
             available_points.remove(point)
@@ -229,7 +228,6 @@ class Bot(Player):
                 cell = (i + x, j + y)
                 if cell not in available_points and cell not in map:
                     available_points.append(cell)
-        # print('Available points: %s' % str(available_points))
 
     def _get_available_points(self):
         """

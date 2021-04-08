@@ -1,3 +1,92 @@
+var Map = {
+    _map: null,
+    _available_points: [],
+    init: function () {
+        this.map = new Array(21).fill(new Array(21).fill(0));
+        this._available_points = [[10, 10]];
+    },
+    _update_available_points: function (point) {
+        var point_index = this._available_points.indexOf(point)
+
+        if (point_index >= 0){
+            this._available_points.splice(point_index, 1)
+        }
+
+        var i = point[0], j = point[1]
+        var x = -2, y = -2;
+
+        while (y <= 2) {
+            while (x <= 2) {
+                if (this._map[i + y][j + x] == 0 && this._available_points.indexOf([i + y, j + x]) == -1) {
+                    this._available_points.push([i + y, j + x])
+                }
+            }
+        }
+    }
+}
+
+var Bot = {
+    _map: null,
+    _level: 3,
+    _symbol: 'o',
+    _turn: false,
+    _states: {
+        'ooooo': 'win',
+        '-oooo-': 'o_for',
+        'xoooo-': 'four',
+        'oo-oo': 'four',
+        'ooo-o': 'four',
+        'o-ooo': 'four',
+        '-oooox': 'four',
+        '-ooo--': 'o_three',
+        '-o-oo-': 'o_three',
+        '-oo-o-': 'o_three',
+        '--ooo-': 'o_three',
+        'xooo--': 'three',
+        'xo-oo-': 'three',
+        'xoo-o-': 'three',
+        '--ooox': 'three',
+        '-o-oox': 'three',
+        '-oo-ox': 'three',
+        '-oo-': 'o_two',
+        '-o-o-': 'o_two',
+        '-oox': 'two',
+        'xoo-': 'two',
+    },
+    _quantification: {
+        'win': INFINITY,
+        'cross_win': INFINITY,
+        'o_for': 5000000,
+        'cross_o_for': 5000000,
+        'four': 300000,
+        'cross_four': 330000,
+        'o_three': 260000,
+        'cross_o_three': 280000,
+        'three': 20000,
+        'cross_three': 45000,
+        'o_two': 400,
+        'cross_o_two': 900,
+        'two': 30,
+        'cross_two': 80,
+    },
+    _evaluate: function () {},
+    _update_available_points: function () {},
+    _get_available_points: function () {},
+    _min: function (map, symbol, level) {
+        var
+        var n = 12;
+        for (var i = 0; i < n; i++) {
+            
+        }
+    },
+    _max: function (map, symbol, level) {
+        var available_points = this._get_available_points()
+    },
+    _get_point: function () {},
+    play: function () {
+    },
+}
+
 $(document).ready(() => {
 
     var map = {
