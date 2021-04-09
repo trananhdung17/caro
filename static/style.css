@@ -1,5 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Lato:wght@300;400&display=swap");
-.flag, .c_map .row .o_cell:before, .c_map .row .x_cell:before {
+.flag, .c_board .row .x_cell:before, .c_board .row .o_cell:before {
   display: block;
   line-height: 30px;
   width: 30px;
@@ -9,7 +9,11 @@
 .main {
   font-family: 'Lato';
   margin: auto;
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
   width: fit-content;
+  height: -webkit-fit-content;
+  height: -moz-fit-content;
   height: fit-content;
 }
 
@@ -29,7 +33,8 @@
   border: none;
   border-bottom: 1px solid #ccc;
   width: 100%;
-  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
 }
 
 .c_panel form div select {
@@ -51,22 +56,28 @@
   margin: 15px 0;
 }
 
-.c_map {
+.c_board {
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
   width: fit-content;
+  height: -webkit-fit-content;
+  height: -moz-fit-content;
   height: fit-content;
   overflow: auto;
   background-color: gray;
 }
 
-.c_map .row {
+.c_board .row {
   margin: 0;
   padding: 0;
   display: block;
+  width: -webkit-max-content;
+  width: -moz-max-content;
   width: max-content;
   height: 30px;
 }
 
-.c_map .row .cell {
+.c_board .row .cell {
   background-color: white;
   padding: 0;
   width: 30px;
@@ -75,21 +86,24 @@
   margin: 0;
   border: 1px solid #aaaaaa;
   overflow: hidden;
-  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
 }
 
-.c_map .row .x_cell:before {
+.c_board .row .x_cell:before {
   content: '\26CC';
   font-size: 2rem;
   color: blue;
-  transform: translateY(-2px);
+  -webkit-transform: translateY(-2px);
+          transform: translateY(-2px);
 }
 
-.c_map .row .o_cell:before {
+.c_board .row .o_cell:before {
   content: '\2B55';
   color: blue;
 }
 
-.c_map .row .active {
+.c_board .row .active {
   background-color: yellow !important;
 }
+/*# sourceMappingURL=style.css.map */

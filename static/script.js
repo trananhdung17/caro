@@ -1,9 +1,15 @@
+
+const INFINITY = 999999999999;
+
 var Player = {
     _name: null,
     _turn: false,
-    _map: null,
-    init: function (map, name) {
-        this._map = map;
+    _board: null,
+    init: function (board, name) {
+        this._board = board;
+        this._name = name;
+    },
+    reset: function (name) {
         this._name = name;
     },
     play: function () {
@@ -15,7 +21,7 @@ var Player = {
 }
 
 var Bot = {
-    _map: null,
+    _board: null,
     _level: 3,
     _symbol: 'o',
     _turn: false,
@@ -58,38 +64,160 @@ var Bot = {
         'two': 30,
         'cross_two': 80,
     },
-    init: function (map) {
-        this._map = map;
+    init: function (board, level) {
+        this._board = board;
+        this._level = level
     },
     reset: function (level) {
+        this._turn = false;
+        this._level = level;
     },
-    _evaluate: function () {},
-    _update_available_points: function () {},
-    _get_available_points: function () {},
-    _min: function (map, symbol, level) {
-        var
-        var n = 12;
-        for (var i = 0; i < n; i++) {
+    _evaluate: function (board, point, symbol) {
+        var n = -4;
+        var [i, j] = point;
+        var h = '', v = '', d = '', u = '';
+        var _board = {...board};
+        _board[`${i}:${j}`] = symbol;
 
+        while (n <= 4) {
+            h += _board[`${i + n}:${j}`] == symbol ? 'o' : 'x';
+            v += _board[`${i}:${j + n}`] == symbol ? 'o' : 'x';
+            d += _board[`${i + n}:${j + n}`] == symbol ? 'o' : 'x';
+            u += _board[`${i - n}:${j + n}`] == symbol ? 'o' : 'x';
+            n++;
+        }
+        
+        var value = 0.0;
+        for (var state in this._states) {
+            if (h.includes(state)) {
+                value += this._quantification[this._states[state]];
+            }
+            if (v.includes(state)) {
+                value += this._quantification[this._states[state]];
+            }
+            if (d.includes(state)) {
+                value += this._quantification['cross_' + this._states[state]];
+            }
+            if (u.includes(state)) {
+                value += this._quantification['cross_' + this._states[state]];
+            }
+        }
+        return value;
+    },
+    _update_available_points: function (board, point, availablePoint) {
+        var pointIndex = availablePoint.indexOf(point)
+
+        if (pointIndex >= 0){
+            availablePoint.splice(pointIndex, 1)
+        }
+
+        var [i, j] = point;
+        var x = -2, y = -2;
+
+        while (y <= 2) {
+            while (x <= 2) {
+                if (board[i + y][j + x] == 0 && availablePoint.indexOf([i + y, j + x]) == -1) {
+                    availablePoint.push([i + y, j + x])
+                }
+            }
         }
     },
-    _max: function (map, symbol, level) {
-        var available_points = this._get_available_points()
+    
+    _min: function (board, availablePoints, symbol, level) {
+
+        if (!this._turn) {
+            return
+        }
+
+        var _availablePoints = [...availablePoints];
+        var _board = {...board};
+
+        var n = Math.min(2 * Object.keys(_board).length / (level + 1), 32);
+        var min_value = 2 * INFINITY;
+        var min_point = null;
+        for (var i = 0; i < n; i++) {
+            if (!this._turn) {
+                return [null, null]
+            }
+            value = this._evaluate(_board, _availablePoints[i], symbol);
+            if (value >= INFINITY) {
+                return [_availablePoints[i], value];
+            }
+            this._push(_availablePoints[i], _board, symbol, _availablePoints);
+            var point, max_value = this._max(_board, _availablePoints, -symbol, level + 1)
+            if (max_value < min_value) {
+                min_value = max_value;
+                min_point = point;
+            }
+            if (Math.abs(max_value) >= INFINITY) {
+                break;
+            }
+        }
+        return [min_point, min_value];
     },
-    _get_point: function () {},
+    _max: function (board, availablePoints, symbol, level) {
+
+        var _availablePoints = [...availablePoints];
+        var _board = {...board};
+
+        var n = Math.min(2 * Object.keys(_board).length / (level + 1), 32);
+        max_value = 2 * INFINITY;
+        max_point = null;
+        for (var i = 0; i < n; i++) {
+            if (!this._turn) {
+                return [null, null]
+            }
+            value = this._evaluate(_board, _availablePoints[i], symbol);
+            if (value >= INFINITY) {
+                return [_availablePoints[i], value];
+            }
+            this._push(_availablePoints[i], _board, symbol, _availablePoints);
+            var [point, min_value] = this._min(_board, _availablePoints, -symbol, level + 1)
+            if (max_value < min_value) {
+                max_value = min_value;
+                max_point = point;
+            }
+            if (Math.abs(max_value) >= INFINITY) {
+                break;
+            }
+        }
+        return [max_point, max_value];
+    },
+    _get_point: function () {
+        var _available_points = this.board.get_available_points();
+        var _board = {...this.board.get_board()};
+        var [point, value] = this._max(_board, _available_points, this._symbol, 0);
+        console.log(`Bot select ${JSON.stringify(point)} with value: ${value}`);
+        return point
+    },
+    _push: function (point, board, symbol, availablePoints) {
+        if (board) {
+            var [i, j] = point;
+            board[`${i}:${j}`] = symbol;
+            this._update_available_points(board, point, availablePoints);
+        } else {
+            this.board.push(point)
+        }
+    },
     play: function () {
+        this._turn = true;
+        var point = this._get_point();
+        if (point) {
+            this.board.push(point);
+        }
+        this._turn = false;
     },
 }
 
-var Map = {
+var Board = {
     $el: null,
-    _map: null,
+    _board: {},
     _availablePoints: [],
     _isEnable: false,
     $lastActive: null,
 
     init: function (player, bot) {
-        this.$el = $('.c_map');
+        this.$el = $('.c_board');
         this.$panel = $('.c_panel');
         this.$el.empty();
         this.bot = bot;
@@ -111,19 +239,19 @@ var Map = {
         var game_level = this.$panel.find('#game_level').value;
         var go_first = this.$panel.find('#go_first').value;
 
-        this._map = new Array(21).fill(new Array(21).fill(0));
+        this._board = {};
         this._availablePoints = [[10, 10]];
         this.player.reset(player_name);
-        this.bot.reset(level);
+        this.bot.reset(game_level);
 
         this.start(go_first);
-    }
+    },
     load: function () {
         var self = this;
         this.$el.empty();
-        for (var i = 0; i <= 21; i++) {
+        for (var i = -10; i <= 10; i++) {
             var $row = $('<div class="row"></div>');
-            for (var j = 0; j <= 21; j++) {
+            for (var j = -10; j <= 10; j++) {
                 var $cell = $(`<span class="cell" data_i="${i}" data_j="${j}"></span>`);
                 $cell.click((event => {
                     if (this.isEnable()) {
@@ -150,25 +278,6 @@ var Map = {
     isEnable: function () {
         return this._isEnable;
     },
-    _send: function (i, j) {
-        var data = {
-            i: i,
-            j: j
-        }
-        $.ajax({
-            type: "POST",
-            url: '/api/player/push',
-            data: data,
-            success: (resp) => {
-                if (resp.point) {
-                    this.push(resp.point[0], resp.point[1], 'o');
-                    this.enable();
-                }
-            },
-            dataType: 'json',
-            contentType: 'application/json;charset=UTF-8',
-        });
-    },
     push: function (i, j, symbol) {
         var $cell = this.$el.find(`span[data_i="${i}"][data_j="${j}"]`);
         if (this.$lastActive) {
@@ -177,6 +286,13 @@ var Map = {
         $cell.addClass('active');
         $cell.addClass(symbol + '_cell');
         this.$lastActive = $cell;
+    },
+
+    get_available_points: function () {
+        return this._availablePoints;
+    },
+    get_board: function () {
+        return this._board;
     },
 
     _update_available_points: function (point) {
@@ -191,7 +307,7 @@ var Map = {
 
         while (y <= 2) {
             while (x <= 2) {
-                if (this._map[i + y][j + x] == 0 && this._availablePoints.indexOf([i + y, j + x]) == -1) {
+                if (this._board[i + y][j + x] == 0 && this._availablePoints.indexOf([i + y, j + x]) == -1) {
                     this._availablePoints.push([i + y, j + x])
                 }
             }
@@ -201,80 +317,12 @@ var Map = {
 }
 
 
-
 $(document).ready(() => {
 
-    var map = {
-        _isEnable: false,
-        $lastActive: null,
-        $el: $('.c_map'),
-        load: function () {
-            var self = this;
-            self.empty();
-            for (var i = -10; i <= 10; i++) {
-                var $row = $('<div class="row"></div>');
-                for (var j = -10; j <= 10; j++) {
-                    var $cell = $(`<span class="cell" data_i="${i}" data_j="${j}"></span>`);
-                    $cell.click((event => {
-                        if (self.isEnable()) {
-                            self.disable();
-                            var y = event.target.getAttribute('data_i');
-                            var x = event.target.getAttribute('data_j');
-                            self.push(y, x, 'x');
-                            send(y, x);
-                            console.log(event);
-                        }
-                    }))
-                    $row.append($cell);
-
-                }
-                self.$el.append($row)
-            }
-        },
-        enable: function () {
-            this._isEnable = true
-        },
-        disable: function () {
-            this._isEnable = false
-        },
-        isEnable: function () {
-            return this._isEnable;
-        },
-        push: function (i, j, symbol) {
-            var $cell = this.$el.find(`span[data_i="${i}"][data_j="${j}"]`);
-            if (this.$lastActive) {
-                this.$lastActive.removeClass('active');
-            }
-            $cell.addClass('active');
-            $cell.addClass(symbol + '_cell');
-            this.$lastActive = $cell;
-        },
-        empty: function () {
-            this.$el.empty();
-        }
-    }
-
-    var
+    Board.init(Player, Bot);
+    Board.load();
 
     $('#action_new').click(event => {
-        var data = {
-            game_level: $('#game_level')[0].value,
-            player_name: $('#player_name')[0].value
-        }
-        $.ajax({
-            type: "POST",
-            url: '/',
-            data: data,
-            success: (resp) => {
-                if (resp.success) {
-                    map.load();
-                    map.enable();
-                }
-            },
-            dataType: 'json',
-            contentType: 'application/json;charset=UTF-8',
-        });
+        Board.new_game();
     })
-
-    map.load();
-})
+});
