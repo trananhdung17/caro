@@ -1,0 +1,2 @@
+
+const INFINITY = 999999999999;
