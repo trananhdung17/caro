@@ -62,10 +62,10 @@ var Bot = {
         _board[JSON.stringify([i, j])] = symbol;
 
         while (n <= 4) {
-            h += _board[JSON.stringify([i + n, j])] == symbol ? 'o' : 'x';
-            v += _board[JSON.stringify([i, j + n])] == symbol ? 'o' : 'x';
-            d += _board[JSON.stringify([i + n, j + n])] == symbol ? 'o' : 'x';
-            u += _board[JSON.stringify([i - n, j + n])] == symbol ? 'o' : 'x';
+            h += _board[JSON.stringify([i + n, j])] == undefined ? '-' : _board[JSON.stringify([i + n, j])] == symbol ? 'o' : 'x';
+            v += _board[JSON.stringify([i, j + n])] == undefined ? '-' : _board[JSON.stringify([i, j + n])] == symbol ? 'o' : 'x';
+            d += _board[JSON.stringify([i + n, j + n])] == undefined ? '-' : _board[JSON.stringify([i + n, j + n])] == symbol ? 'o' : 'x';
+            u += _board[JSON.stringify([i - n, j + n])] == undefined ? '-' : _board[JSON.stringify([i - n, j + n])] == symbol ? 'o' : 'x';
             n++;
         }
         
@@ -115,8 +115,9 @@ var Bot = {
         }
 
 
-        var n = Math.max(4, Math.min(2 * Object.keys(board).length / (level + 1), 12));
-        n = Math.min(n, availablePoints.length)
+        // var n = Math.max(4, Math.min(2 * Object.keys(board).length / (level + 1), 12));
+        // n = Math.min(n, availablePoints.length)
+        var n = availablePoints.length;
         var min_value = 2 * INFINITY;
         var min_point = null;
         for (var i = 0; i < n; i++) {
@@ -128,9 +129,9 @@ var Bot = {
             var _board = {...board};
             var point = JSON.parse(_availablePoints[i]);
             this._push(point, _board, symbol, _availablePoints);
-            var value = this._evaluate(_board, point, symbol);
-            if (value >= INFINITY) {
-                return [point, -value];
+            var value = -this._evaluate(_board, point, symbol);
+            if (-value >= INFINITY) {
+                return [point, value];
             }
             if (level == this._level) {
                 if (value < min_value) {
@@ -148,13 +149,15 @@ var Bot = {
                 }
             }
         }
-        return [min_point, -min_value];
+        return [min_point, min_value];
     },
     _max: function (board, availablePoints, symbol, level) {
         console.log(level)
 
-        var n = Math.max(4, Math.min(2 * Object.keys(board).length / (level + 1), 12));
-        n = Math.min(n, availablePoints.length)
+        // var n = Math.max(4, Math.min(2 * Object.keys(board).length / (level + 1), 12));
+        // n = Math.min(n, availablePoints.length)
+        var n = availablePoints.length;
+
         var max_value = -2 * INFINITY;
         var max_point = null;
         for (var i = 0; i < n; i++) {
