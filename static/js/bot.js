@@ -59,13 +59,13 @@ var Bot = {
         var [i, j] = point;
         var h = '', v = '', d = '', u = '';
         var _board = {...board};
-        _board[`${i}:${j}`] = symbol;
+        _board[JSON.stringify([i, j])] = symbol;
 
         while (n <= 4) {
-            h += _board[`${i + n}:${j}`] == symbol ? 'o' : 'x';
-            v += _board[`${i}:${j + n}`] == symbol ? 'o' : 'x';
-            d += _board[`${i + n}:${j + n}`] == symbol ? 'o' : 'x';
-            u += _board[`${i - n}:${j + n}`] == symbol ? 'o' : 'x';
+            h += _board[JSON.stringify([i + n, j])] == symbol ? 'o' : 'x';
+            v += _board[JSON.stringify([i, j + n])] == symbol ? 'o' : 'x';
+            d += _board[JSON.stringify([i + n, j + n])] == symbol ? 'o' : 'x';
+            u += _board[JSON.stringify([i - n, j + n])] == symbol ? 'o' : 'x';
             n++;
         }
         
@@ -87,7 +87,7 @@ var Bot = {
         return value;
     },
     _update_available_points: function (board, point, availablePoint) {
-        var pointIndex = availablePoint.indexOf(point)
+        var pointIndex = availablePoint.indexOf(JSON.stringify(point));
 
         if (pointIndex >= 0){
             availablePoint.splice(pointIndex, 1)
@@ -98,8 +98,9 @@ var Bot = {
 
         while (y <= 2) {
             while (x <= 2) {
-                if ((!(`${y}:${x}` in board)) && (availablePoint.indexOf([i + y, j + x]) == -1)) {
-                    availablePoint.push([i + y, j + x])
+                var key = JSON.stringify([i + y, j + x]);
+                if ((!(key in board)) && (availablePoint.indexOf(key) == -1)) {
+                    availablePoint.push(key)
                 }
                 x++;
             }
@@ -113,28 +114,31 @@ var Bot = {
             return
         }
 
-        var _availablePoints = [...availablePoints];
-        var _board = {...board};
 
-        var n = Math.max(4, Math.min(2 * Object.keys(_board).length / (level + 1), 12));
+        var n = Math.max(4, Math.min(2 * Object.keys(board).length / (level + 1), 12));
+        n = Math.min(n, availablePoints.length)
         var min_value = 2 * INFINITY;
         var min_point = null;
         for (var i = 0; i < n; i++) {
             if (!this._turn) {
                 return [null, null]
             }
-            var value = this._evaluate(_board, _availablePoints[i], symbol);
+
+            var _availablePoints = [...availablePoints];
+            var _board = {...board};
+            var point = JSON.parse(_availablePoints[i]);
+            this._push(point, _board, symbol, _availablePoints);
+            var value = this._evaluate(_board, point, symbol);
             if (value >= INFINITY) {
-                return [_availablePoints[i], -value];
+                return [point, -value];
             }
             if (level == this._level) {
                 if (value < min_value) {
                     min_value = value;
-                    min_point = _availablePoints[i];
+                    min_point = point;
                 }
             } else {
-                this._push(_availablePoints[i], _board, symbol, _availablePoints);
-                var point, max_value = this._max(_board, _availablePoints, -symbol, level + 1)
+                var [point, max_value] = this._max(_board, _availablePoints, symbol == 'x' ? 'o' : 'x', level + 1)
                 if (max_value < min_value) {
                     min_value = max_value;
                     min_point = point;
@@ -149,28 +153,30 @@ var Bot = {
     _max: function (board, availablePoints, symbol, level) {
         console.log(level)
 
-        var _availablePoints = [...availablePoints];
-        var _board = {...board};
-
-        var n = Math.max(4, Math.min(2 * Object.keys(_board).length / (level + 1), 12));
+        var n = Math.max(4, Math.min(2 * Object.keys(board).length / (level + 1), 12));
+        n = Math.min(n, availablePoints.length)
         var max_value = -2 * INFINITY;
         var max_point = null;
         for (var i = 0; i < n; i++) {
             if (!this._turn) {
                 return [null, null]
             }
-            var value = this._evaluate(_board, _availablePoints[i], symbol);
+
+            var _availablePoints = [...availablePoints];
+            var _board = {...board};
+            var point = JSON.parse(_availablePoints[i]);
+            this._push(point, _board, symbol, _availablePoints);
+            var value = this._evaluate(_board, point, symbol);
             if (value >= INFINITY) {
-                return [_availablePoints[i], value];
+                return [point, value];
             }
             if (level == this._level) {
                 if (value > max_value) {
                     max_value = value;
-                    max_point = _availablePoints[i];
+                    max_point = point;
                 }
             } else {
-                this._push(_availablePoints[i], _board, symbol, _availablePoints);
-                var [point, min_value] = this._min(_board, _availablePoints, -symbol, level + 1)
+                var [point, min_value] = this._min(_board, _availablePoints, symbol == 'x' ? 'o' : 'x', level + 1)
                 if (max_value < min_value) {
                     max_value = min_value;
                     max_point = point;
@@ -192,7 +198,7 @@ var Bot = {
     _push: function (point, board, symbol, availablePoints) {
         if (board) {
             var [i, j] = point;
-            board[`${i}:${j}`] = symbol;
+            board[JSON.stringify([i, j])] = symbol;
             this._update_available_points(board, point, availablePoints);
         } else {
             this._board.push(point)
@@ -202,7 +208,7 @@ var Bot = {
         this._turn = true;
         var point = this._get_point();
         if (point) {
-            this._board.push(point);
+            this._board.push(point[0], point[1], 'o');
         }
         this._turn = false;
     },

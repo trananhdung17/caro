@@ -41,7 +41,7 @@ var Board = {
             first = 1;
         }
         this._board = {};
-        this._availablePoints = [[0, 0]];
+        this._availablePoints = ["[0,0]"];
         this._players[0].reset(player_name)
         this._players[1].reset('Bot', game_level)
 
@@ -87,10 +87,13 @@ var Board = {
             $cell.addClass(symbol + '_cell');
             this.$lastActive = $cell;
 
-            this._board[`${i}:${j}`] = symbol;
+            this._board[JSON.stringify([i, j])] = symbol;
             this._update_available_points([i, j]);
         }
-        this.play(1 - this._turn);
+        setTimeout(() => {
+            this.play(1 - this._turn);
+        }, 100);
+        
     },
 
     get_available_points: function () {
@@ -101,20 +104,21 @@ var Board = {
     },
 
     _update_available_points: function (point) {
-        var pointIndex = this._availablePoints.indexOf(point)
+        var pointIndex = this._availablePoints.indexOf(JSON.stringify(point))
 
         if (pointIndex >= 0){
             this._availablePoints.splice(pointIndex, 1)
         }
 
-        var i = point[0], j = point[1]
+        var [i, j] = point;
         var y = -2;
 
         while (y <= 2) {
             var x = -2
             while (x <= 2) {
-                if ((!(`${y}:${x}` in this._board)) && (this._availablePoints.indexOf([i + y, j + x]) == -1)) {
-                    this._availablePoints.push([i + y, j + x])
+                var key = JSON.stringify([i + y, j + x])
+                if ((!(key in this._board)) && (this._availablePoints.indexOf(key) == -1)) {
+                    this._availablePoints.push(key)
                 }
                 x++;
             }

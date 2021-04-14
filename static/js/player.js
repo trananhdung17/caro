@@ -18,7 +18,7 @@ var Player = {
         if (!this._turn) {
             return;
         }
-        this._board.push(y, x, this._symbol)
         this._turn = false;
+        this._board.push(y, x, this._symbol)
     }
 }
