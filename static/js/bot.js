@@ -216,3 +216,23 @@ var Bot = {
         this._turn = false;
     },
 }
+function minimax(board, availablePoints, point, depth, maxPlayer) {
+    if (depth == this.maxDepth) {
+        return heuristic(board, point, maxPlayer)
+    }
+    if (maxPlayer) {
+        var value = -INFINITY;
+        var max_point = null;
+        for (var key in availablePoint) {
+            var child = availablePoints[JSON.parse(key)];
+            value = Math.max(value, minimax(board, availablePoints, child, depth))
+        }
+        if (depth == 0) {
+            return point;
+        }
+        
+
+    } else {
+
+    }
+}
