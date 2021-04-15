@@ -169,6 +169,7 @@ class Bot(Player):
 
         _max_point = None
         _max_value = -(2 * INFINITY)
+        cdef long int value
         for v, p in _value_points[:20]:
 
             value = self._min(_map, available_points, p,  self.symbol, 0)
@@ -201,8 +202,9 @@ class Bot(Player):
 
         if current_value >= INFINITY:
             return -current_value
-
-        if level == min(self.max_depth, int((len(self.map.map) + 2) / 3)):
+        print(level)
+        # if level == min(self.max_depth, int((len(self.map.map) + 2) / 3)):
+        if level == self.max_depth:
             return -current_value
 
         self._update_available_points(_map, _available_points, point)
@@ -210,7 +212,6 @@ class Bot(Player):
         _value_points = [(self._estimate(_map, p, -symbol) + self._estimate(_map, p, symbol), p) for p in _available_points]
         _value_points.sort(key=lambda x: x[0], reverse=True)
 
-        cdef int _max_point[2]
         cdef long int _max_value = -(2 * INFINITY)
         cdef long int value
 
@@ -221,7 +222,6 @@ class Bot(Player):
 
             if value > _max_value:
                 _max_value = value
-                _max_point = p
 
             if abs(value) >= INFINITY:
                 break
@@ -246,7 +246,10 @@ class Bot(Player):
 
         if current_value >= INFINITY:
             return current_value
-        if level == min(self.max_depth, int((len(self.map.map) + 1) / 2)):
+
+        print(level)
+        # if level == min(self.max_depth, int((len(self.map.map) + 1) / 2)):
+        if level == self.max_depth:
             return current_value
 
         self._update_available_points(_map, _available_points, point)
@@ -255,7 +258,6 @@ class Bot(Player):
         _value_points.sort(key=lambda x: x[0], reverse=True)
 
         cdef long int _min_value = 2 * INFINITY
-        cdef int _min_point[2]
         cdef long int value
 
         n = min(max(8, int((len(_map) + 8) / (level + 1))), 24)
@@ -265,7 +267,6 @@ class Bot(Player):
 
             if value < _min_value:
                 _min_value = value
-                _min_point = p
 
             if abs(value) >= INFINITY:
                 break
