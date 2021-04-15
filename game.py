@@ -1,7 +1,10 @@
 # Created by trananhdung on 01/04/2021
 # -*- coding: utf-8 -*-
 
-from player import Player
+import pyximport
+pyximport.install()
+
+from bot import Player
 from map import Map
 
 

@@ -142,11 +142,9 @@ class Bot(Player):
         :param symbol: 1 or -1
         :return: int
         """
-        global ESTIMATION_TIMES
-        ESTIMATION_TIMES += 1
-        print("Estimation times: %s" % ESTIMATION_TIMES)
+
         v, h, d, u = self._get_lines(map, point, symbol)
-        cdef int value = 0
+        cdef long int value = 0
         for state in self._states:
             if state in v:
                 value += self._quantification[self._states[state]]
@@ -173,7 +171,7 @@ class Bot(Player):
         _max_value = -(2 * INFINITY)
         for v, p in _value_points[:20]:
 
-            value = self._min(_map, available_points, p,  self.symbol, 0)[0]
+            value = self._min(_map, available_points, p,  self.symbol, 0)
 
             if value > _max_value:
                 _max_value = value
@@ -183,8 +181,6 @@ class Bot(Player):
                 break
 
         print('Selected point: %s with value is %s' % (str(_max_point), _max_value))
-        global ESTIMATION_TIMES
-        ESTIMATION_TIMES = 0
         return _max_point
 
     def _max(self, map, available_points, point, symbol, level=0):
@@ -201,26 +197,27 @@ class Bot(Player):
         _available_points = [*available_points]
         _map[point] = symbol
 
-        current_value = self._estimate(_map, point, symbol)
+        cdef long int current_value = self._estimate(_map, point, symbol)
 
         if current_value >= INFINITY:
-            return -current_value, point
+            return -current_value
 
         if level == min(self.max_depth, int((len(self.map.map) + 2) / 3)):
-            return -current_value, point
+            return -current_value
 
         self._update_available_points(_map, _available_points, point)
 
         _value_points = [(self._estimate(_map, p, -symbol) + self._estimate(_map, p, symbol), p) for p in _available_points]
         _value_points.sort(key=lambda x: x[0], reverse=True)
 
-        _max_point = None
-        _max_value = -(2 * INFINITY)
+        cdef int _max_point[2]
+        cdef long int _max_value = -(2 * INFINITY)
+        cdef long int value
 
         n = min(max(8, int((len(_map) + 8) / (level + 1))), 24)
         for v, p in _value_points[:n]:
 
-            value = self._min(_map, _available_points, p, -symbol, level + 1)[0]
+            value = self._min(_map, _available_points, p, -symbol, level + 1)
 
             if value > _max_value:
                 _max_value = value
@@ -229,7 +226,7 @@ class Bot(Player):
             if abs(value) >= INFINITY:
                 break
 
-        return _max_value, _max_point
+        return _max_value
 
     def _min(self, map, available_points, point, symbol, level=0):
         """
@@ -245,25 +242,26 @@ class Bot(Player):
         _available_points = [*available_points]
         _map[point] = symbol
 
-        current_value = self._estimate(_map, point, symbol)
+        cdef long int current_value = self._estimate(_map, point, symbol)
 
         if current_value >= INFINITY:
-            return current_value, point
+            return current_value
         if level == min(self.max_depth, int((len(self.map.map) + 1) / 2)):
-            return current_value, point
+            return current_value
 
         self._update_available_points(_map, _available_points, point)
 
         _value_points = [(self._estimate(_map, p, -symbol) + self._estimate(_map, p, symbol), p) for p in _available_points]
         _value_points.sort(key=lambda x: x[0], reverse=True)
 
-        _min_value = 2 * INFINITY
-        _min_point = None
+        cdef long int _min_value = 2 * INFINITY
+        cdef int _min_point[2]
+        cdef long int value
 
         n = min(max(8, int((len(_map) + 8) / (level + 1))), 24)
         for v, p in _value_points[:n]:
 
-            value = self._max(_map, _available_points, p, -symbol, level + 1)[0]
+            value = self._max(_map, _available_points, p, -symbol, level + 1)
 
             if value < _min_value:
                 _min_value = value
@@ -272,7 +270,7 @@ class Bot(Player):
             if abs(value) >= INFINITY:
                 break
 
-        return _min_value, _min_point
+        return _min_value
 
     def _update_available_points(self, map, available_points, point):
         """
