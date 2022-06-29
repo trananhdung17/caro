@@ -3,3 +3,7 @@
 *.py[cod]
 *.log
 *.conf
+/build/
+*.so
+*.c
+

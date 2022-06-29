@@ -1,5 +1,6 @@
 # Created by trananhdung on 01/04/2021
 # -*- coding: utf-8 -*-
+import datetime
 
 from flask import Flask, Response, request, jsonify
 import os
@@ -61,10 +62,16 @@ def push():
     data = urlparse.parse_qs(request.data.decode())
     i = int(data['i'][0])
     j = int(data['j'][0])
+    if game.map.is_end:
+        return jsonify({'success': False, 'point': None, 'game_over': True, 'message': 'Please create new game!'})
     game.player.push((i, j))
-    point = game.map.bot_play()
+    if game.map.is_end:
+        return jsonify({'success': True, 'point': None, 'game_over': True, 'message': 'Player is Winner'})
+    t = datetime.datetime.now()
+    point, msg = game.map.bot_play()
+    print("Time for computing: %s" % (datetime.datetime.now() - t))
 
-    return jsonify({'success': True, 'point': point})
+    return jsonify({'success': True, 'point': point, 'game_over': bool(msg), 'message': msg})
 
 
 def run():

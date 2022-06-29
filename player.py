@@ -40,9 +40,9 @@ class BasePlayer(object):
             else:
                 return 'fail'
         elif state == 'pass':
-            return point
+            return point, None
         else:
-            return state
+            return point, state
 
     def set_map(self, map):
         self.map = map
@@ -56,7 +56,7 @@ class Player(BasePlayer):
 
     def push(self, point):
         self.state.update(point=point)
-        self.play()
+        return self.play()
 
     def _get_point(self):
         return self.state.get('point')

@@ -153,13 +153,14 @@ class Map(object):
             return 'fail'
         self.map[point] = symbol
         self._update_available_cell(point)
+        if self._check_end_game(point):
+            msg = self._do_end_game()
+        else:
+            msg = 'pass'
         self.players[self.turn].turn = False
         self.turn = -self.turn
         self.players[self.turn].turn = True
-        if self._check_end_game(point):
-            return self._do_end_game()
-        else:
-            return 'pass'
+        return msg
 
 
 if __name__ == '__main__':
